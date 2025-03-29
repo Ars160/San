@@ -2,18 +2,16 @@ package main
 
 import (
 	"log"
-	"net/http"
+
+	"awesomeProject1/internal/database"
+	"awesomeProject1/internal/routes"
 )
 
 func main() {
+	database.InitDB()
 
-	server := &http.Server{
-		Addr: "localhost:8080",
-	}
+	r := routes.SetupRoutes()
 
-	err := server.ListenAndServe()
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	log.Println("Сервер запущен на http://localhost:8080")
+	r.Run(":8080")
 }

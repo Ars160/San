@@ -15,12 +15,11 @@ var DB *gorm.DB
 func InitDB() {
 	var err error
 
-	// Настройки БД (можно заменить на переменные окружения)
 	host := "localhost"
 	port := 5432
 	user := "postgres"
 	password := "123123"
-	dbname := "san_db"
+	dbname := "San"
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
@@ -33,7 +32,6 @@ func InitDB() {
 		log.Fatal("Ошибка подключения к БД:", err)
 	}
 
-	// Автоматическая миграция
 	DB.AutoMigrate(&models.Product{})
 	log.Println("База данных подключена и миграции применены!")
 }
