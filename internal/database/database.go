@@ -16,10 +16,10 @@ func InitDB() {
 	var err error
 
 	host := "localhost"
-	port := 5432
-	user := "postgres"
-	password := "123123"
-	dbname := "San"
+	port := 5430
+	user := "admin"
+	password := "test123"
+	dbname := "san_db"
 
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
