@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"awesomeProject1/internal/auth"
 	"awesomeProject1/internal/delivery"
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +18,13 @@ func SetupRoutes() *gin.Engine {
 		products.POST("/", controllers.CreateProduct)
 		products.PUT("/:id", controllers.UpdateProduct)
 		products.DELETE("/:id", controllers.DeleteProduct)
+	}
+
+	// Users
+	users := r.Group("/auth")
+	{
+		users.POST("/login", auth.Login)
+		users.POST("/register", auth.Register)
 	}
 
 	return r
