@@ -3,6 +3,7 @@ package routes
 import (
 	"awesomeProject1/internal/auth"
 	"awesomeProject1/internal/delivery"
+	"awesomeProject1/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,9 +16,6 @@ func SetupRoutes() *gin.Engine {
 	{
 		products.GET("/", controllers.GetAllProducts)
 		products.GET("/:id", controllers.GetProductByID)
-		products.POST("/", controllers.CreateProduct)
-		products.PUT("/:id", controllers.UpdateProduct)
-		products.DELETE("/:id", controllers.DeleteProduct)
 	}
 
 	// Users
@@ -25,6 +23,16 @@ func SetupRoutes() *gin.Engine {
 	{
 		users.POST("/login", auth.Login)
 		users.POST("/register", auth.Register)
+	}
+
+	//Зашищенные
+	protected := r.Group("/api")
+	protected.Use(middleware.AuthRequired())
+	{
+		protected.GET("/profile", auth.Profile)
+		protected.POST("/products", controllers.CreateProduct)
+		protected.DELETE("products/:id", controllers.DeleteProduct)
+		protected.PUT("/:id", controllers.UpdateProduct)
 	}
 
 	return r
