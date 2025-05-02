@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
+	"strconv"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -16,11 +18,17 @@ import (
 var DB *gorm.DB
 
 func InitDB() *gorm.DB {
-	host := "localhost"
-	port := 5430
-	user := "admin"
-	password := "test123"
-	dbname := "san_db"
+	// Получаем параметры подключения из переменных окружения
+	host := os.Getenv("DB_HOST")
+	portStr := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_NAME")
+
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		log.Fatalf("Неверный порт: %v", err)
+	}
 
 	// Формируем строку подключения
 	dsn := fmt.Sprintf(
@@ -46,8 +54,11 @@ func InitDB() *gorm.DB {
 		"postgres",
 		driver,
 	)
+	if err != nil {
+		log.Fatal("Ошибка инициализации мигратора:", err)
+	}
 
-	// Применяем миграции
+	// Проверка на грязное состояние
 	if version, dirty, err := m.Version(); err == nil && dirty {
 		log.Printf("Обнаружено грязное состояние версии %d, исправляем...", version)
 		if err := m.Force(int(version)); err != nil {
@@ -55,12 +66,8 @@ func InitDB() *gorm.DB {
 		}
 	}
 
-	if err != nil {
-		log.Fatal("Ошибка инициализации мигратора:", err)
-	}
-
 	// Применяем все pending миграции
-	if err := m.Up(); err != migrate.ErrNoChange && err != nil {
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		log.Fatal("Ошибка применения миграций:", err)
 	}
 
@@ -75,7 +82,5 @@ func InitDB() *gorm.DB {
 	log.Println("База данных подключена и миграции применены!")
 
 	DB = db
-
-	// Возвращаем соединение
 	return db
 }

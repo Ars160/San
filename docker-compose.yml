@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  postgres:
+  my_postgres_db:
     image: postgres:latest
     container_name: postgres-san
     restart: always
@@ -14,5 +14,23 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
 
+  my-san-service:
+    depends_on:
+      - my_postgres_db
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: 'my-san-service-iso'
+    container_name: 'my-san-service-container'
+    environment:
+      DB_HOST: my_postgres_db
+      DB_PORT: 5432
+      DB_USER: admin
+      DB_PASSWORD: test123
+      DB_NAME: san_db
+    ports:
+      - "8888:8080"
+    volumes:
+      - ./internal/database/migrations:/app/internal/database/migrations
 volumes:
   pg_data:

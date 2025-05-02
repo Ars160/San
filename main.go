@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/joho/godotenv"
 	"log"
 
 	"awesomeProject1/internal/database"
@@ -11,6 +12,12 @@ import (
 )
 
 func main() {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Ошибка загрузки .env файла")
+	}
+
 	db := database.InitDB()
 
 	productRepo := repository.NewProductRepository(db)
