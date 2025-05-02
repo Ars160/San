@@ -15,7 +15,7 @@ import (
 
 var DB *gorm.DB
 
-func InitDB() {
+func InitDB() *gorm.DB {
 	host := "localhost"
 	port := 5430
 	user := "admin"
@@ -47,7 +47,7 @@ func InitDB() {
 		driver,
 	)
 
-	// После создания мигратора (m) добавьте:
+	// Применяем миграции
 	if version, dirty, err := m.Version(); err == nil && dirty {
 		log.Printf("Обнаружено грязное состояние версии %d, исправляем...", version)
 		if err := m.Force(int(version)); err != nil {
@@ -65,7 +65,7 @@ func InitDB() {
 	}
 
 	// Инициализируем GORM с существующим соединением
-	DB, err = gorm.Open(postgres.New(postgres.Config{
+	db, err := gorm.Open(postgres.New(postgres.Config{
 		Conn: sqlDB,
 	}), &gorm.Config{})
 	if err != nil {
@@ -73,4 +73,9 @@ func InitDB() {
 	}
 
 	log.Println("База данных подключена и миграции применены!")
+
+	DB = db
+
+	// Возвращаем соединение
+	return db
 }

@@ -30,7 +30,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token, _ := GenerateJWT(u.ID)
+	token, _ := GenerateJWT(u.ID, u.Role)
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 func Register(c *gin.Context) {
@@ -62,6 +62,7 @@ func Register(c *gin.Context) {
 	u := user.User{
 		Username: req.Username,
 		Password: string(hashedPassword),
+		Role:     "user",
 	}
 	if err := database.DB.Create(&u).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
@@ -87,5 +88,6 @@ func Profile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"id":       u.ID,
 		"username": u.Username,
+		"role":     u.Role,
 	})
 }

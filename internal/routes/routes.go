@@ -7,15 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SetupRoutes — создаём роутер и регистрируем эндпойнты
-func SetupRoutes() *gin.Engine {
+func SetupRoutes(productHandler *controllers.ProductHandler) *gin.Engine {
 	r := gin.Default()
 
 	// Группа /products
 	products := r.Group("/products")
 	{
-		products.GET("/", controllers.GetAllProducts)
-		products.GET("/:id", controllers.GetProductByID)
+		products.GET("/", productHandler.GetAllProducts)
+		products.GET("/:id", productHandler.GetProductByID)
 	}
 
 	// Users
@@ -25,14 +24,20 @@ func SetupRoutes() *gin.Engine {
 		users.POST("/register", auth.Register)
 	}
 
-	//Зашищенные
+	// Защищенные
 	protected := r.Group("/api")
 	protected.Use(middleware.AuthRequired())
 	{
 		protected.GET("/profile", auth.Profile)
-		protected.POST("/products", controllers.CreateProduct)
-		protected.DELETE("products/:id", controllers.DeleteProduct)
-		protected.PUT("/:id", controllers.UpdateProduct)
+
+		// Admin-only routes
+		admin := protected.Group("/products")
+		admin.Use(middleware.RequireRole("admin"))
+		{
+			admin.POST("/", productHandler.CreateProduct)
+			admin.PUT("/:id", productHandler.UpdateProduct)
+			admin.DELETE("/:id", productHandler.DeleteProduct)
+		}
 	}
 
 	return r
