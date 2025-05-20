@@ -15,7 +15,7 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Ошибка загрузки .env файла")
+		log.Println("Ошибка загрузки .env файла")
 	}
 
 	db := database.InitDB()
@@ -24,7 +24,11 @@ func main() {
 	productService := service.NewProductService(productRepo)
 	productHandler := controllers.NewProductHandler(productService)
 
-	r := routes.SetupRoutes(productHandler)
+	categoryRepo := repository.NewCategoryRepository(db)
+	categoryService := service.NewCategoryService(categoryRepo)
+	categoryHandler := controllers.NewCategoryHandler(categoryService)
+
+	r := routes.SetupRoutes(productHandler, categoryHandler)
 
 	log.Println("Сервер запущен на http://localhost:8080")
 	r.Run(":8080")

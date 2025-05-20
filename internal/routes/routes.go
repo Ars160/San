@@ -7,14 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(productHandler *controllers.ProductHandler) *gin.Engine {
+func SetupRoutes(productHandler *controllers.ProductHandler, categoryHandler *controllers.CategoryHandler) *gin.Engine {
 	r := gin.Default()
 
-	// Группа /products
-	products := r.Group("/products")
+	//category /category
+	category := r.Group("/category")
 	{
-		products.GET("/", productHandler.GetAllProducts)
-		products.GET("/:id", productHandler.GetProductByID)
+		category.GET("/", categoryHandler.GetAllCategory)
+		category.GET("/:id", categoryHandler.GetCategoryByID)
 	}
 
 	// Users
@@ -30,13 +30,30 @@ func SetupRoutes(productHandler *controllers.ProductHandler) *gin.Engine {
 	{
 		protected.GET("/profile", auth.Profile)
 
+		// Products (под /api/products)
+		products := protected.Group("/products")
+		{
+			products.GET("/", productHandler.GetAllProducts)
+			products.GET("/:id", productHandler.GetProductByID)
+			products.POST("/", productHandler.CreateProduct)
+			products.PUT("/:id", productHandler.UpdateProduct)
+			products.DELETE("/:id", productHandler.DeleteProduct)
+		}
+
+		// Categories (под /api/categories)
+		categories := protected.Group("/categories")
+		{
+			categories.GET("/", categoryHandler.GetAllCategory)
+			categories.GET("/:id", categoryHandler.GetCategoryByID)
+		}
+
 		// Admin-only routes
-		admin := protected.Group("/products")
+		admin := protected.Group("/category")
 		admin.Use(middleware.RequireRole("admin"))
 		{
-			admin.POST("/", productHandler.CreateProduct)
-			admin.PUT("/:id", productHandler.UpdateProduct)
-			admin.DELETE("/:id", productHandler.DeleteProduct)
+			admin.POST("/", categoryHandler.CreateCategory)
+			admin.PUT("/:id", categoryHandler.UpdateCategory)
+			admin.DELETE("/:id", categoryHandler.DeleteCategory)
 		}
 	}
 

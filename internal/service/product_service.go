@@ -6,7 +6,7 @@ type ProductRepository interface {
 	GetAll() ([]models.Product, error)
 	GetById(id int) (*models.Product, error)
 	Create(product *models.Product) error
-	Update(id int, student *models.Product) error
+	Update(id int, product *models.Product) error
 	Delete(id int) error
 }
 
