@@ -52,3 +52,17 @@ func RequireRole(requiredRole string) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+func GetUserFromContext(c *gin.Context) (uint, string, bool) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		return 0, "", false
+	}
+
+	role, exists := c.Get("userRole")
+	if !exists {
+		return 0, "", false
+	}
+
+	return userID.(uint), role.(string), true
+}

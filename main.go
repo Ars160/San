@@ -28,7 +28,11 @@ func main() {
 	categoryService := service.NewCategoryService(categoryRepo)
 	categoryHandler := controllers.NewCategoryHandler(categoryService)
 
-	r := routes.SetupRoutes(productHandler, categoryHandler)
+	outfitRepo := repository.NewOutfitRepository(db)
+	outfitService := service.NewOutfitService(outfitRepo)
+	outfitHandler := controllers.NewOutfitHandler(outfitService)
+
+	r := routes.SetupRoutes(productHandler, categoryHandler, outfitHandler)
 
 	log.Println("Сервер запущен на http://localhost:8080")
 	r.Run(":8080")

@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(productHandler *controllers.ProductHandler, categoryHandler *controllers.CategoryHandler) *gin.Engine {
+func SetupRoutes(productHandler *controllers.ProductHandler, categoryHandler *controllers.CategoryHandler, outfitHandler *controllers.OutfitHandler) *gin.Engine {
 	r := gin.Default()
 
 	//category /category
@@ -40,11 +40,13 @@ func SetupRoutes(productHandler *controllers.ProductHandler, categoryHandler *co
 			products.DELETE("/:id", productHandler.DeleteProduct)
 		}
 
-		// Categories (под /api/categories)
-		categories := protected.Group("/categories")
+		outfits := protected.Group("/outfits")
 		{
-			categories.GET("/", categoryHandler.GetAllCategory)
-			categories.GET("/:id", categoryHandler.GetCategoryByID)
+			outfits.GET("/", outfitHandler.GetAllOutfits)
+			outfits.GET("/:id", outfitHandler.GetOutfitByID)
+			outfits.POST("/", outfitHandler.CreateOutfit)
+			outfits.PUT("/:id", outfitHandler.UpdateOutfit)
+			outfits.DELETE("/:id", outfitHandler.DeleteOutfit)
 		}
 
 		// Admin-only routes

@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS outfit_products;
+DROP TABLE IF EXISTS outfits;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS users;

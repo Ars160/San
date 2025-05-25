@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"awesomeProject1/internal/middleware"
 	"awesomeProject1/internal/service"
 	"net/http"
 	"strconv"
@@ -39,12 +40,20 @@ func (h *ProductHandler) GetProductByID(c *gin.Context) {
 }
 
 func (h *ProductHandler) CreateProduct(c *gin.Context) {
-	var product models.Product
-
-	if err := c.ShouldBindJSON(&product); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный JSON"})
+	userID, _, ok := middleware.GetUserFromContext(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Требуется авторизация"})
 		return
 	}
+
+	var product models.Product
+	if err := c.ShouldBindJSON(&product); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверные данные"})
+		return
+	}
+
+	// Устанавливаем владельца продукта
+	product.UserID = userID
 
 	err := h.service.CreateProduct(&product)
 	if err != nil {
@@ -56,6 +65,22 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 }
 
 func (h *ProductHandler) UpdateProduct(c *gin.Context) {
+	currentUserID, _, ok := middleware.GetUserFromContext(c)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Требуется авторизация"})
+		return
+	}
+
+	// Получаем продукт из БД
+	productID, _ := strconv.Atoi(c.Param("id"))
+	existingProduct, err := h.service.GetProductById(productID)
+
+	// Проверяем, что пользователь - владелец
+	if existingProduct.UserID != currentUserID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Вы не можете изменять этот товар"})
+		return
+	}
+
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
